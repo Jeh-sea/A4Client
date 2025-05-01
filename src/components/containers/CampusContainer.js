@@ -8,23 +8,42 @@ If needed, it also defines the component's "connect" function.
 import Header from './Header';
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { fetchCampusThunk } from "../../store/thunks";
+import { fetchCampusThunk , deleteCampusThunk } from "../../store/thunks";
+import { Redirect } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 import { CampusView } from "../views";
 
 class CampusContainer extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      redirect: false
+    };
+  }
   // Get the specific campus data from back-end database
   componentDidMount() {
     // Get campus ID from URL (API link)
     this.props.fetchCampus(this.props.match.params.id);
   }
 
+  handleDelete = async (campusId) => {
+    await this.props.deleteCampus(campusId);
+    this.setState({ redirect: true }); 
+  };
+
   // Render a Campus view by passing campus data as props to the corresponding View component
   render() {
+    if (this.state.redirect) {
+      return <Redirect to="/campuses" />;
+    }
+
     return (
       <div>
         <Header />
-        <CampusView campus={this.props.campus} />
+        <CampusView campus={this.props.campus} 
+        handleDelete={this.handleDelete}
+        />
       </div>
     );
   }
@@ -43,7 +62,14 @@ const mapState = (state) => {
 const mapDispatch = (dispatch) => {
   return {
     fetchCampus: (id) => dispatch(fetchCampusThunk(id)),
+    deleteCampus: (campusId) => dispatch(deleteCampusThunk(campusId)),
   };
+};
+
+CampusContainer.propTypes = {
+  campus: PropTypes.object.isRequired,
+  fetchCampus: PropTypes.func.isRequired,
+  deleteCampus: PropTypes.func.isRequired,
 };
 
 // Export store-connected container by default
