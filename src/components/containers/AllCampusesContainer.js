@@ -12,6 +12,9 @@ import { connect } from "react-redux";
 import { fetchAllCampusesThunk } from "../../store/thunks";
 import { AllCampusesView } from "../views";
 
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
 class AllCampusesContainer extends Component {
   // Get all campuses data from back-end database
   componentDidMount() {
