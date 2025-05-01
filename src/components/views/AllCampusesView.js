@@ -7,6 +7,8 @@ It constructs a React component to display all campuses.
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
+import React from 'react';
+
 const AllCampusesView = (props) => {
   // If there is no campus, display a message.
   if (!props.allCampuses.length) {
@@ -23,6 +25,14 @@ const AllCampusesView = (props) => {
           <Link to={`/campus/${campus.id}`}>
             <h2>{campus.name}</h2>
           </Link>
+          {}
+          {campus.image_url && (
+            <img
+              src={campus.image_url}
+              alt={`Campus image for ${campus.name}`}
+              style={{ maxWidth: '200px', maxHeight: '150px', objectFit: 'cover', marginBottom: '10px' }}
+            />
+          )}
           <h4>campus id: {campus.id}</h4>
           <p>{campus.address}</p>
           <p>{campus.description}</p>
