@@ -35,7 +35,7 @@ const useStyles = makeStyles( () => ({
 }));
 
 const NewStudentView = (props) => {
-  const {handleChange, handleSubmit } = props;
+  const {handleChange, handleSubmit , errors, isFormValid} = props;
   const classes = useStyles();
 
   // Render a New Student view with an input form
@@ -51,22 +51,47 @@ const NewStudentView = (props) => {
             </Typography>
           </div>
           <form style={{textAlign: 'center'}} onSubmit={(e) => handleSubmit(e)}>
-            <label style= {{color:'#11153e', fontWeight: 'bold'}}>First Name: </label>
-            <input type="text" name="firstname" onChange ={(e) => handleChange(e)} />
-            <br/>
-            <br/>
-
-            <label style={{color:'#11153e', fontWeight: 'bold'}}>Last Name: </label>
-            <input type="text" name="lastname" onChange={(e) => handleChange(e)} />
-            <br/>
+            <div>
+              <label style= {{color:'#11153e', fontWeight: 'bold'}}>First Name: </label>
+              <input type="text" name="firstname" onChange ={(e) => handleChange(e)} required />
+              {errors.firstname && <span className={classes.error}>{errors.firstname}</span>}
+            </div>
             <br/>
 
-            <label style={{color:'#11153e', fontWeight: 'bold'}}>Campus Id: </label>
-            <input type="text" name="campusId" onChange={(e) => handleChange(e)} />
-            <br/>
+            <div>
+              <label style={{color:'#11153e', fontWeight: 'bold'}}>Last Name: </label>
+              <input type="text" name="lastname" onChange={(e) => handleChange(e)} required />
+              {errors.lastname && <span className={classes.error}>{errors.lastname}</span>}
+            </div>
             <br/>
 
-            <Button variant="contained" color="primary" type="submit">
+            <div>
+              <label style={{color:'#11153e', fontWeight: 'bold'}}>Email: </label>
+              <input type="email" name="email" onChange={(e) => handleChange(e)} required />
+              {errors.email && <span className={classes.error}>{errors.email}</span>}
+            </div>
+            <br/>
+
+            <div>
+              <label style={{color:'#11153e', fontWeight: 'bold'}}>Image URL (Optional): </label>
+              <input type="text" name="image_url" onChange={(e) => handleChange(e)} />
+            </div>
+            <br/>
+
+            <div>
+              <label style={{color:'#11153e', fontWeight: 'bold'}}>GPA: </label>
+              <input type="number" name="gpa" min="0.0" max="4.0" step="0.01" onChange={(e) => handleChange(e)} required />
+              {errors.gpa && <span className={classes.error}>{errors.gpa}</span>}
+            </div>
+            <br/>
+
+            <div>
+              <label style={{color:'#11153e', fontWeight: 'bold'}}>Campus Id (Optional): </label>
+              <input type="text" name="campusId" onChange={(e) => handleChange(e)} />
+            </div>
+            <br/>
+
+            <Button variant="contained" color="primary" type="submit" disabled={!isFormValid}>
               Submit
             </Button>
             <br/>
@@ -74,7 +99,7 @@ const NewStudentView = (props) => {
           </form>
           </div>
       </div>
-    </div>    
+    </div>
   )
 }
 

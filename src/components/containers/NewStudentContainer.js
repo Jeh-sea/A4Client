@@ -20,40 +20,100 @@ class NewStudentContainer extends Component {
     this.state = {
       firstname: "", 
       lastname: "", 
+      email: "",
+      image_url: "",
+      gpa: "",
       campusId: null, 
       redirect: false, 
-      redirectId: null
+      redirectId: null,
+      errors: {},
+      isFormValid: false
     };
   }
 
-  // Capture input data when it is entered
+  validateField = (name, value) => {
+    let error = null;
+    switch (name) {
+      case 'firstname':
+      case 'lastname':
+        if (!value) error = 'This field is required.';
+        break;
+      case 'email':
+        if (!value) {
+          error = 'Email is required.';
+        } else if (!/\S+@\S+\.\S+/.test(value)) {
+          error = ' Email address is invalid.';
+        }
+        break;
+      case 'gpa':
+        const gpaValue = parseFloat(value);
+        if (value === "" || value === null) {
+            error = 'GPA is required.';
+        } else if (isNaN(gpaValue)) {
+            error = 'GPA must be a number.';
+        } else if (gpaValue < 0.0 || gpaValue > 4.0) {
+            error = 'GPA must be between 0.0 and 4.0.';
+        }
+        break;
+      default:
+        break;
+    }
+    return error;
+  }
+
+  checkFormValidity = (errors) => {
+    return !errors.firstname && !errors.lastname && !errors.email && !errors.gpa;
+  }
+
   handleChange = event => {
-    this.setState({
-      [event.target.name]: event.target.value
-    });
+    const { name, value } = event.target;
+    const error = this.validateField(name, value);
+    const newErrors = { ...this.state.errors, [name]: error };
+
+    this.setState(prevState => ({
+      ...prevState,
+      [name]: value,
+      errors: newErrors,
+      isFormValid: this.checkFormValidity(newErrors)
+    }));
   }
 
   // Take action after user click the submit button
   handleSubmit = async event => {
     event.preventDefault();  // Prevent browser reload/refresh after submit.
 
+    if (!this.state.isFormValid) {
+      console.log("Form is not valid. Cannot submit.");
+      return;
+    }
+
     let student = {
-        firstname: this.state.firstname,
-        lastname: this.state.lastname,
-        campusId: this.state.campusId
+      firstname: this.state.firstname,
+      lastname: this.state.lastname,
+      email: this.state.email,
+      image_url: this.state.image_url,
+      gpa: parseFloat(this.state.gpa),
+      campusId: this.state.campusId ? parseInt(this.state.campusId) : null
     };
     
-    // Add new student in back-end database
-    let newStudent = await this.props.addStudent(student);
+    try {
+      let newStudent = await this.props.addStudent(student);
 
-    // Update state, and trigger redirect to show the new student
-    this.setState({
-      firstname: "", 
-      lastname: "", 
-      campusId: null, 
-      redirect: true, 
-      redirectId: newStudent.id
-    });
+      this.setState({
+        firstname: "",
+        lastname: "",
+        email: "",
+        image_url: "",
+        gpa: "",
+        campusId: null,
+        redirect: true,
+        redirectId: newStudent.id,
+        errors: {},
+        isFormValid: false
+      });
+    } catch (error) {
+      console.error("Error adding student:", error);
+    }
   }
 
   // Unmount when the component is being removed from the DOM:
@@ -74,7 +134,9 @@ class NewStudentContainer extends Component {
         <Header />
         <NewStudentView 
           handleChange = {this.handleChange} 
-          handleSubmit={this.handleSubmit}      
+          handleSubmit={this.handleSubmit}  
+          errors={this.state.errors}
+          isFormValid={this.state.isFormValid}    
         />
       </div>          
     );
