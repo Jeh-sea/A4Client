@@ -27,8 +27,10 @@ export const fetchAllCampusesThunk = () => async (dispatch) => {  // The THUNK
 export const addCampusThunk = (campus) => async (dispatch) => {
   try {
     const campusToSend = {
-      ...campus,
-      imageUrl: campus.imageUrl || DEFAULT_CAMPUS_IMAGE_URL,
+      name: campus.name,
+      address: campus.address,
+      description: campus.description,
+      image_url: campus.image_url || DEFAULT_CAMPUS_IMAGE_URL, 
     };
     let res = await axios.post(`/api/campuses`, campusToSend);
     dispatch(ac.addCampus(res.data));
@@ -40,6 +42,7 @@ export const addCampusThunk = (campus) => async (dispatch) => {
 
 export const deleteCampusThunk = campusId => async dispatch => {
   try {
+
     await axios.delete(`/api/campuses/${campusId}`);
 
     dispatch(ac.deleteCampus(campusId));
@@ -50,7 +53,13 @@ export const deleteCampusThunk = campusId => async dispatch => {
 
 export const editCampusThunk = campus => async dispatch => {
   try {
-    let updatedCampus = await axios.put(`/api/campuses/${campus.id}`, campus); 
+    const campusToSend = {
+      name: campus.name,
+      address: campus.address,
+      description: campus.description,
+      image_url: campus.image_url
+    };
+    let updatedCampus = await axios.put(`/api/campuses/${campus.id}`, campusToSend); 
 
     dispatch(ac.editCampus(updatedCampus.data));
     return updatedCampus.data;
