@@ -84,15 +84,11 @@ class EditCampusContainer extends Component {
         return (
             <div>
                 <Header />
-                {this.state.id ? (
                 <EditCampusView 
                     handleChange = {this.handleChange} 
                     handleSubmit={this.handleSubmit}   
                     campus={this.state}
                 />
-                ) : (
-                <p>Loading campus data...</p>
-                )}
             </div>          
         );
     }
