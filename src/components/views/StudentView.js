@@ -16,6 +16,7 @@ const StudentView = (props) => {
       <h1>{student.firstname + " " + student.lastname}</h1>
       {student.campus ? (
         <h3>
+          Campus: {" "}
           <Link to={`/campus/${student.campus.id}`}>
             {student.campus.name}
           </Link>
