@@ -5,7 +5,7 @@ This is a Reducer function that accepts 2 parameters: the previous state object 
 Depending on the Action object, the Reducer updates the State and return the new State object.
 It also defines the State and its default initial value.
 ================================================== */
-import { FETCH_CAMPUS , EDIT_CAMPUS} from "../actions/actionTypes";  // Import Action Type
+import { FETCH_CAMPUS , EDIT_CAMPUS, EDIT_STUDENT} from "../actions/actionTypes";  // Import Action Type
 
 // Define default Initial State
 const initialState = {
@@ -16,15 +16,31 @@ const initialState = {
 const campus = (state = initialState, action) => {  // Use "initialState" as default Initial State
   switch (action.type) {
     case FETCH_CAMPUS:
-      return action.payload;
+      return { ...action.payload, students: action.payload.students || [] };
     case EDIT_CAMPUS:
       if (state.id === action.payload.id) {
-        return action.payload;
+        return { ...state, ...action.payload };
       } else {
         return state;
       }
+      case EDIT_STUDENT:
+      const updatedStudent = action.payload;
+      let newStudents = [...state.students];
+
+      if (updatedStudent.campusId === state.id) {
+        if (!newStudents.some(s => s.id === updatedStudent.id)) {
+          newStudents.push(updatedStudent);
+        }
+      }
+      else {
+        newStudents = newStudents.filter(s => s.id !== updatedStudent.id);
+      }
+      if (newStudents.length !== state.students.length || !newStudents.every((s, i) => s.id === state.students[i]?.id)) {
+         return { ...state, students: newStudents };
+      } else {
+         return state;
+      }
     default:
-      // If the Reducer doesn't recognize the Action Type, returns the previous (current) State unchanged.
       return state;
   }
 };
