@@ -79,8 +79,8 @@ const NewStudentView = (props) => {
             <br/>
 
             <div>
-              <label style={{color:'#11153e', fontWeight: 'bold'}}>GPA: </label>
-              <input type="number" name="gpa" min="0.0" max="4.0" step="0.01" onChange={(e) => handleChange(e)} required />
+              <label style={{color:'#11153e', fontWeight: 'bold'}}>GPA: (Optional): </label>
+              <input type="number" name="gpa" min="0.0" max="4.0" step="0.01" onChange={(e) => handleChange(e)} />
               {errors.gpa && <span className={classes.error}>{errors.gpa}</span>}
             </div>
             <br/>
