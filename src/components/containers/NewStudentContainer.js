@@ -189,12 +189,23 @@ class NewStudentContainer extends Component {
       });
     } catch (error) {
       console.error("Error adding student:", error);
+      let specificErrorHandled = false;
       if (error.response && error.response.status === 409) { 
         this.setState(prevState => ({
           errors: { ...prevState.errors, email: "This Email has already been registered." },
           isFormValid: false
         }));
-      } else {
+        specificErrorHandled = true;
+      } else if (error.response && error.response.status === 400) { 
+          if (error.response.data && error.response.data.message && /campus/i.test(error.response.data.message)) { 
+            this.setState(prevState => ({
+              errors: { ...prevState.errors, campusId: "Campus ID is invalid." },
+              isFormValid: false
+            }));
+            specificErrorHandled = true;
+          }
+        }
+        if (!specificErrorHandled) {
           this.setState(prevState => ({
           errors: { ...prevState.errors, form: "An unexpected error occurred. Please try again." },
           isFormValid: false

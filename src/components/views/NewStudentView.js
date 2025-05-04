@@ -86,8 +86,9 @@ const NewStudentView = (props) => {
             <br/>
 
             <div>
-              <label style={{color:'#11153e', fontWeight: 'bold'}}>Campus Id (Optional): </label>
+              <label style={{color:'#11153e', fontWeight: 'bold'}}>Campus ID (Optional): </label>
               <input type="text" name="campusId" onChange={(e) => handleChange(e)} onBlur={handleBlur} />
+              {errors.campusId && <span className={classes.error}>{errors.campusId}</span>} 
             </div>
             <br/>
 
