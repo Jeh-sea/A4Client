@@ -46,13 +46,15 @@ class NewStudentContainer extends Component {
         }
         break;
       case 'gpa':
-        const gpaValue = parseFloat(value);
+
         if (value === "" || value === null) {
-            error = 'GPA is required.';
-        } else if (isNaN(gpaValue)) {
+          const gpaValue = parseFloat(value);
+          error = 'GPA is required.';
+          if (isNaN(gpaValue)) {
             error = 'GPA must be a number.';
-        } else if (gpaValue < 0.0 || gpaValue > 4.0) {
+          } else if (gpaValue < 0.0 || gpaValue > 4.0) {
             error = 'GPA must be between 0.0 and 4.0.';
+          }
         }
         break;
       default:
@@ -61,26 +63,33 @@ class NewStudentContainer extends Component {
     return error;
   }
 
-  checkFormValidity = (errors) => {
-    return !errors.firstname && !errors.lastname && !errors.email && !errors.gpa;
+  checkFormValidity = (errors, state) => {
+    return !!state.firstname && !!state.lastname && !!state.email && !errors.firstname && !errors.lastname && !errors.email && !errors.gpa;
   }
 
   handleChange = event => {
     const { name, value } = event.target;
     const error = this.validateField(name, value);
-    const newErrors = { ...this.state.errors, [name]: error };
 
-    this.setState(prevState => ({
-      ...prevState,
-      [name]: value,
-      errors: newErrors,
-      isFormValid: this.checkFormValidity(newErrors)
-    }));
+    this.setState(prevState => {
+      const newState = { ...prevState, [name]: value };
+      const newErrors = { ...prevState.errors, [name]: error };
+      const formIsValid = this.checkFormValidity(newErrors, newState);
+      
+      return {
+        ...newState,
+        errors: newErrors,
+        isFormValid: formIsValid
+      };
+    });
   }
 
   // Take action after user click the submit button
   handleSubmit = async event => {
     event.preventDefault();  // Prevent browser reload/refresh after submit.
+
+    const finalErrors = { ...this.state.errors };
+    let formIsValid = this.checkFormValidity(finalErrors, this.state);
 
     if (!this.state.isFormValid) {
       console.log("Form is not valid. Cannot submit.");
@@ -92,7 +101,7 @@ class NewStudentContainer extends Component {
       lastname: this.state.lastname,
       email: this.state.email,
       image_url: this.state.image_url,
-      gpa: parseFloat(this.state.gpa),
+      gpa: this.state.gpa !== "" ? parseFloat(this.state.gpa) : null, 
       campusId: this.state.campusId ? parseInt(this.state.campusId) : null
     };
     

@@ -39,7 +39,7 @@ const AllCampusesView = (props) => {
               style={{ maxWidth: '200px', maxHeight: '150px', objectFit: 'cover', marginBottom: '10px' }}
             />
           )}
-          <h4>campus id: {campus.id}</h4>
+          <h4>Campus ID: {campus.id}</h4>
           <p>{campus.address}</p>
           <p>{campus.description}</p>
           <hr />

@@ -25,8 +25,10 @@ const StudentView = (props) => {
         <h3>Not Enrolled in any Campus</h3>
       )}
       <img src={student.image_url} alt={`${student.firstname} ${student.lastname}`} style={{maxWidth: '300px', maxHeight: '300px', margin: '10px'}} />
-      <p>Email: {student.email}</p>
-      <p>GPA: {formattedGPA}</p>
+      <p><strong>First Name:</strong> {student.firstname}</p>
+      <p><strong>Last Name:</strong> {student.lastname}</p>
+      <p><strong>Email: </strong>{student.email}</p>
+      <p><strong>GPA: </strong>{formattedGPA}</p>
 
       <Link to={`/editstudent/${student.id}`}>
         <button>Edit Student</button>
