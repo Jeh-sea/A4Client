@@ -27,7 +27,14 @@ class NewStudentContainer extends Component {
       redirect: false, 
       redirectId: null,
       errors: {},
-      isFormValid: false
+      isFormValid: false,
+      touched: { 
+        firstname: false,
+        lastname: false,
+        email: false,
+        gpa: false,
+        campusId: false
+      }
     };
   }
 
@@ -46,8 +53,7 @@ class NewStudentContainer extends Component {
         }
         break;
       case 'gpa':
-
-        if (value === "" || value === null) {
+        if (value !== "" && value != null) {
           const gpaValue = parseFloat(value);
           error = 'GPA is required.';
           if (isNaN(gpaValue)) {
@@ -69,13 +75,23 @@ class NewStudentContainer extends Component {
 
   handleChange = event => {
     const { name, value } = event.target;
-    const error = this.validateField(name, value);
 
     this.setState(prevState => {
       const newState = { ...prevState, [name]: value };
-      const newErrors = { ...prevState.errors, [name]: error };
-      const formIsValid = this.checkFormValidity(newErrors, newState);
+      let newErrors = { ...prevState.errors};
+      let formIsValid = prevState.isFormValid;
       
+      if (name !== 'email' && prevState.touched[name]) {
+        const error = this.validateField(name, value);
+        newErrors = { ...newErrors, [name]: error };
+        formIsValid = this.checkFormValidity(newErrors, newState);
+      } else if (name === 'email') {
+         newErrors = { ...newErrors, email: null }; 
+         formIsValid = this.checkFormValidity(newErrors, newState);
+      } else {
+         formIsValid = this.checkFormValidity(newErrors, newState);
+      }
+
       return {
         ...newState,
         errors: newErrors,
@@ -84,17 +100,61 @@ class NewStudentContainer extends Component {
     });
   }
 
+  handleBlur = event => {
+    const { name, value } = event.target;
+    
+    this.setState(prevState => ({
+      touched: { ...prevState.touched, [name]: true }
+    }));
+
+    const error = this.validateField(name, value);
+    this.setState(prevState => {
+      const newErrors = { ...prevState.errors, [name]: error };
+      const formIsValid = this.checkFormValidity(newErrors, prevState);
+        return {
+          errors: newErrors,
+          isFormValid: formIsValid
+        };
+    });
+  }
+
   // Take action after user click the submit button
   handleSubmit = async event => {
     event.preventDefault();  // Prevent browser reload/refresh after submit.
+    this.setState(prevState => ({
+      touched: {
+        firstname: true,
+        lastname: true,
+        email: true,
+        gpa: true,
+        campusId: true
+      }
+    })); 
 
-    const finalErrors = { ...this.state.errors };
-    let formIsValid = this.checkFormValidity(finalErrors, this.state);
+    let finalErrors = {};
+    let canSubmit = true;
+    Object.keys(this.state.touched).forEach(name => {
+        const error = this.validateField(name, this.state[name]);
+        if (error) {
+            finalErrors[name] = error;
+            if (name === 'firstname' || name === 'lastname' || name === 'email') {
+               canSubmit = false; 
+            }
+            if (name === 'gpa' && error) {
+                canSubmit = false;
+            }
+        }
+    });
 
-    if (!this.state.isFormValid) {
-      console.log("Form is not valid. Cannot submit.");
+    this.setState({ errors: finalErrors });
+
+    if (!canSubmit) {
+      console.log("Form has validation errors. Cannot submit.");
+      this.setState({ isFormValid: false });
       return;
     }
+
+    this.setState({ isFormValid: true }); 
 
     let student = {
       firstname: this.state.firstname,
@@ -118,10 +178,28 @@ class NewStudentContainer extends Component {
         redirect: true,
         redirectId: newStudent.id,
         errors: {},
-        isFormValid: false
+        isFormValid: false,
+        touched: { 
+          firstname: false, 
+          lastname: false, 
+          email: false, 
+          gpa: false, 
+          campusId: false 
+        }
       });
     } catch (error) {
       console.error("Error adding student:", error);
+      if (error.response && error.response.status === 409) { 
+        this.setState(prevState => ({
+          errors: { ...prevState.errors, email: "This Email has already been registered." },
+          isFormValid: false
+        }));
+      } else {
+          this.setState(prevState => ({
+          errors: { ...prevState.errors, form: "An unexpected error occurred. Please try again." },
+          isFormValid: false
+        }));
+      }
     }
   }
 
@@ -142,10 +220,11 @@ class NewStudentContainer extends Component {
       <div>
         <Header />
         <NewStudentView 
-          handleChange = {this.handleChange} 
-          handleSubmit={this.handleSubmit}  
+          handleChange = {this.handleChange}
+          handleBlur={this.handleBlur}
+          handleSubmit={this.handleSubmit}
           errors={this.state.errors}
-          isFormValid={this.state.isFormValid}    
+          isFormValid={this.state.isFormValid} 
         />
       </div>          
     );
